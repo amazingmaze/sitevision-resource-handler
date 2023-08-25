@@ -1,19 +1,29 @@
 {
   "dependencies": {
     "@types/chokidar": "^2.1.3",
-    "@types/node-sass": "^4.11.3",
     "@types/node": "^20.5.4",
+    "@types/node-sass": "^4.11.3",
     "chokidar": "^3.5.3",
     "jsDAV": "^0.3.4",
     "node-sass": "^9.0.0",
+    "parcel": "^2.9.3",
     "webdav": "^5.2.3"
   },
-  "name": "sasswatcher",
+  "name": "sitevision-resource-handler",
   "version": "1.0.0",
   "main": "./dist/index.js",
   "type": "module",
-  "scripts": {},
-  "author": "",
+  "scripts": {
+    "watch": "concurrently \"parcel watch src/ts/index.ts\" \"node watch.js\"",
+    "build": "parcel build src/ts/index.ts && node build.js",
+    "test": "node ./test/server.cjs"
+  },
+  "author": "Mattias <mattias@amazeit.dev>",
   "license": "ISC",
-  "description": ""
+  "description": "Will handle compilation and auto upload of resource files to Sitevision webdav.",
+  "devDependencies": {
+    "concurrently": "^8.2.1",
+    "rimraf": "^5.0.1",
+    "typescript": "^5.2.2"
+  }
 }

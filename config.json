@@ -1,6 +1,5 @@
 {
-    "hostname": "http://127.0.0.1:3333",
-    "rootFolder": "src/sass",
+    "hostname": "http://localhost:8080",
     "username": "system",
     "password": "system"
   }
