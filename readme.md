@@ -1,6 +1,6 @@
 # Sitevision resource handler
 
-Sass Watcher is a project that compiles SASS files, watches for changes, and uploads the resulting JavaScript and CSS files to a WebDAV server.
+Sitevision resource handler is a project that compiles SASS files, watches for changes, and uploads the resulting JavaScript and CSS files to a WebDAV server.
 Uses chokidar for file watching as well as parcel for easy compilation/optimization of typescript files.
 
 ## Features
