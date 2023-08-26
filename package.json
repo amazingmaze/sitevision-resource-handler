@@ -11,11 +11,11 @@
   },
   "name": "sitevision-resource-handler",
   "version": "1.0.0",
-  "main": "./dist/index.js",
   "type": "module",
   "scripts": {
-    "watch": "concurrently \"parcel watch src/ts/index.ts\" \"node watch.js\"",
-    "build": "parcel build src/ts/index.ts && node build.js",
+    "clean": "rimraf dist && rimraf .parcel-cache",
+    "watch": "npm run clean && concurrently \"parcel watch src/ts/index.ts --dist-dir dist/js\" \"node watch.js\"",
+    "build": "npm run clean && parcel build src/ts/index.ts --dist-dir dist/js && node build.js",
     "test": "node ./test/server.cjs"
   },
   "author": "Mattias <mattias@amazeit.dev>",

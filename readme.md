@@ -1,13 +1,14 @@
-# Sitevision resource handler
+# Sitevision Resource Handler
 
-Sitevision resource handler is a project that compiles SASS files, watches for changes, and uploads the resulting JavaScript and CSS files to a WebDAV server.
-Uses chokidar for file watching as well as parcel for easy compilation/optimization of typescript files.
+Sitevision Resource Handler is a utility that automates the process of compiling SASS files, copying Velocity templates, and uploading resources like JavaScript, CSS, and Velocity templates to a WebDAV server. It uses Chokidar for file watching, Parcel for TypeScript compilation, and Node-Sass for SASS compilation.
 
 ## Features
 
 - Compiles SASS files to CSS
-- Watches for changes in SASS and JavaScript files
-- Uploads JavaScript and CSS files to a WebDAV server
+- Compiles TypeScript files to JavaScript
+- Watches for changes in SASS, JavaScript, and Velocity template files
+- Uploads JavaScript, CSS, and Velocity templates to a WebDAV server
+- Supports recursive directory uploads
 
 ## Requirements
 
@@ -22,22 +23,24 @@ Uses chokidar for file watching as well as parcel for easy compilation/optimizat
 
 ## Configuration
 
-index.scss and index.ts is required within /src/sass and /src/ts respectively. This are hard-coded paths. You'll also need to create a `config.json` file in the root directory with the following structure:
+Create a `config.json` file in the root directory with the following structure:
 
 ```json
 {
-  "hostname": "your-webdav-server.com",
+  "hostname": "http://your-webdav-server.com",
   "username": "username",
-  "password": "password"
+  "password": "password",
+  "webdavBaseUploadFolder": "your-base-folder"
 }
 ```
 
-Replace the values with your WebDAV server details.
+Replace the values with your WebDAV server details and desired base upload folder.
 
 ## Usage
+
 ### Development
 
-Start the development server and watch for changes:
+To start the development server and watch for changes, run:
 
 ```bash
 npm run watch
@@ -45,58 +48,44 @@ npm run watch
 
 ### Build
 
-Compile and build the project:
+To compile and build the project for production, run:
 
 ```bash
 npm run build
 ```
 
-### Files
+### Cleaning
 
-* build.js: Compiles the SASS file and uploads JavaScript and CSS files. Will minify and optimize files. Should be used for production.
-* common.js: Contains common functions for uploading files and compiling SASS
-* watch.js: Watches for changes in SASS and JavaScript files and triggers compilation and upload. Will not optimize files before upload. Used for testing and development.
-* package.json: Project dependencies and scripts
+To clean the `dist` and `.parcel-cache` directories, run:
 
-### Dependencies
+```bash
+npm run clean
+```
 
-* chokidar: File watcher
-* node-sass: SASS compiler
-* webdav: WebDAV client
+## Project Structure
+
+- `build.js`: Handles the compilation of SASS files and uploads resources to the WebDAV server. Suitable for production.
+- `common.js`: Contains utility functions for uploading files, compiling SASS, and creating directories.
+- `watch.js`: Watches for file changes and triggers appropriate actions like compilation and upload. Suitable for development.
+- `server.cjs`: A test WebDAV server for local testing.
+- `config.json`: Configuration file for WebDAV server details.
+- `package.json`: Project dependencies and scripts.
+
+## Dependencies
+
+- Chokidar: File watcher
+- Node-Sass: SASS compiler
+- WebDAV: WebDAV client
+- Parcel: TypeScript compiler
+- jsDAV: WebDAV server for testing
 
 ## Testing WebDAV Server
 
-For testing purposes, a WebDAV server is included in the project. This server uses the `jsDAV` library and is configured to run on `http://localhost:3333/webdav/files`.
-
-### Configuration
-
-The server is configured to use basic authentication with the following credentials:
-
-- Username: `user`
-- Password: `pass`
-
-You can modify these credentials in the `server.cjs` file.
-
-### Running the Server
-
-To start the WebDAV server, run the following command:
+A test WebDAV server is included in the project, configured to run on `http://localhost:8080`. To start the server, run:
 
 ```bash
-node server.cjs
+npm run test
 ```
-The server will be accessible at http://localhost:3333/webdav/files, and you can use it to test the file upload functionality of the project.
-
-### Files
-
-* server.cjs: Contains the code to run the WebDAV server, including authentication and configuration.
-
-### Dependencies
-
-* jsDAV: WebDAV server library
-
-### Note
-
-Make sure to update the config.json file with the correct hostname, username, and password to match the testing WebDAV server when running in a testing environment.
 
 ## License
 
@@ -104,4 +93,4 @@ ISC
 
 ## Author
 
-mattias@amazeit.dev
+Mattias <mattias@amazeit.dev>
