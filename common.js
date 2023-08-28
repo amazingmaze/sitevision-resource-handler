@@ -50,7 +50,6 @@ export const uploadFile = async (filePath, content) => {
     console.log('File uploaded successfully:', fullPath);
   } catch (error) {
     console.error('Error uploading file:', error);
-    console.error('Fullpath: '  + fullPath);
   }
 };
 
