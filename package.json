@@ -4,7 +4,6 @@
     "@types/node": "^20.5.4",
     "@types/node-sass": "^4.11.3",
     "chokidar": "^3.5.3",
-    "jsDAV": "^0.3.4",
     "node-sass": "^9.0.0",
     "parcel": "^2.9.3",
     "webdav": "^5.2.3"

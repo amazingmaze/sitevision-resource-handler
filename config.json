@@ -1,7 +1,7 @@
 {
-    "hostname": "http://localhost:8080",
-    "username": "system",
-    "password": "system",
+    "hostname": "http://localhost:3333",
+    "username": "user",
+    "password": "pass",
     "webdavBaseUploadFolder": "resources"
   }
   

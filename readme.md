@@ -67,7 +67,6 @@ npm run clean
 - `build.js`: Handles the compilation of SASS files and uploads resources to the WebDAV server. Suitable for production.
 - `common.js`: Contains utility functions for uploading files, compiling SASS, and creating directories.
 - `watch.js`: Watches for file changes and triggers appropriate actions like compilation and upload. Suitable for development.
-- `server.cjs`: A test WebDAV server for local testing.
 - `config.json`: Configuration file for WebDAV server details.
 - `package.json`: Project dependencies and scripts.
 
@@ -77,15 +76,6 @@ npm run clean
 - Node-Sass: SASS compiler
 - WebDAV: WebDAV client
 - Parcel: TypeScript compiler
-- jsDAV: WebDAV server for testing
-
-## Testing WebDAV Server
-
-A test WebDAV server is included in the project, configured to run on `http://localhost:8080`. To start the server, run:
-
-```bash
-npm run test
-```
 
 ## License
 

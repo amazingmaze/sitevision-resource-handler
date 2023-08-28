@@ -32,25 +32,29 @@ const createDirectoryRecursively = async (dirPath) => {
 export const uploadFile = async (filePath, content) => {
   try {
     // Construct the full directory path for uploading
-    let uploadDirectoryPaths = path.join(config.webdavBaseUploadFolder, path.dirname(filePath));
+    let uploadDirectoryPaths = normalizePath(path.join(config.webdavBaseUploadFolder, path.dirname(filePath)));
 
     // Check if the directory exists on the server
     const directoryExists = await client.exists(uploadDirectoryPaths);
 
     // Create the directory if it doesn't exist
     if (!directoryExists) {
+      console.log("Creating directories: " + uploadDirectoryPaths);
       await createDirectoryRecursively(uploadDirectoryPaths);
     }
 
-    const fullPath = path.join(uploadDirectoryPaths, path.basename(filePath));
+    const fullPath = normalizePath(path.join(uploadDirectoryPaths, path.basename(filePath)));
 
     // Upload the file
     await client.putFileContents(fullPath, content);
     console.log('File uploaded successfully:', fullPath);
   } catch (error) {
     console.error('Error uploading file:', error);
+    console.error('Fullpath: '  + fullPath);
   }
 };
+
+const normalizePath = (path) => path.replace(/\\/g, '/');
 
 // Function to compile SASS files
 export const compileSass = (filePath) => {
@@ -58,7 +62,7 @@ export const compileSass = (filePath) => {
 
   try {
     const result = sass.renderSync({
-      file: path.join(process.cwd(), filePath),
+      file: path.join(process.cwd(), path.join('src', 'sass', 'index.scss')),
       outputStyle: 'compressed'
     });
 
@@ -100,5 +104,11 @@ export const init = async () => {
 
   if (!directoryExists) {
     await createDirectoryRecursively(resourcesFolderPath);
+  }
+
+  // Check if './dist' exists, if not create it
+  const distFolderPath = path.join(process.cwd(), 'dist');
+  if (!fs.existsSync(distFolderPath)) {
+    fs.mkdirSync(distFolderPath, { recursive: true });
   }
 };

@@ -17,13 +17,16 @@ const compileAndUploadSass = (filePath) => {
   const outputPath = path.join(process.cwd(), 'dist', 'css', 'main.css');
   const cssBuffer = fs.readFileSync(outputPath);
 
-  uploadFile('main.css', cssBuffer);
+  const relativePath = path.relative('dist', outputPath); // Remove 'dist' from the path
+
+  uploadFile(relativePath, cssBuffer);
 };
 
 // Function to upload JavaScript and Velocity (.vm) files when they change
 const uploadJsAndVm = (filePath) => {
   const jsContent = fs.readFileSync(filePath);
-  uploadFile(path.basename(filePath), jsContent);
+  const relativePath = path.relative('dist', filePath); // Remove 'dist' from the path
+  uploadFile(relativePath, jsContent);
 };
 
 // Watch for changes in SASS files and compile/upload them
@@ -31,8 +34,11 @@ const sassWatcher = chokidar.watch("./src/sass", { ignored: /^\./, persistent: t
 sassWatcher.on('change', compileAndUploadSass);
 
 // Watch for changes in JavaScript and .vm files in the dist directory and upload them
-const jsAndVmWatcher = chokidar.watch(['dist/**/*.js', 'dist/**/*.vm'], { ignored: /^\./, persistent: true });
-jsAndVmWatcher.on('change', uploadJsAndVm);
+const jsAndVmWatcher = chokidar.watch(['dist/*/*.js', 'dist/**/*.vm'], { ignored: /^\./, persistent: true });
+jsAndVmWatcher.on('change', (filePath) => {
+  console.log(`File changed: ${filePath}`);
+  uploadJsAndVm(filePath);
+});
 
 // Watch for changes in .vm files in the src/vm directory and copy them to the dist directory
 const vmWatcher = chokidar.watch('./src/vm', { ignored: /^\./, persistent: true });
