@@ -62,6 +62,11 @@ To clean the `dist` and `.parcel-cache` directories, run:
 npm run clean
 ```
 
+### Notes on SiteVision
+If you are to upload to a development site that does not have a legit certificate installed. Make sure that do not have https requirement in website settings (access requirements). If you do not do this you will get a 401 error on upload.
+
+You also have to make sure that the user you use to connect to webdav is a local created sitevision user with enough privileges.
+
 ## Project Structure
 
 - `build.js`: Handles the compilation of SASS files and uploads resources to the WebDAV server. Suitable for production.
