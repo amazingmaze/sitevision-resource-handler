@@ -42,7 +42,7 @@ export const uploadFile = async (filePath, content) => {
 
     // Create the directory if it doesn't exist
     if (!directoryExists) {
-      console.log("Creating directories: " + uploadDirectoryPaths);
+      console.log(chalk.bgMagenta("Creating directories in WebDAV: " + chalk.bold(uploadDirectoryPaths)));
       await createDirectoryRecursively(uploadDirectoryPaths);
     }
 
@@ -83,11 +83,15 @@ export const compileSass = (filePath) => {
   }
 };
 
-// Function to copy .vm files to the dist directory
-export const copyVelocity = (filePath) => {
+// Function to copy Sitevision scripts to dist
+export const copySitevisionScripts = (filePath) => {
   const content = fs.readFileSync(filePath);
-  const fileName = path.basename(filePath);
-  const destPath = path.join(process.cwd(), 'dist', 'vm', fileName);
+  
+  // Calculate the relative path to the 'src' directory
+  const relativePathToSrc = path.relative(path.join(process.cwd(), 'src'), filePath);
+  
+  // Create the destination path based on the relative path
+  const destPath = path.join(process.cwd(), 'dist', relativePathToSrc);
 
   // Create the output directory if it doesn't exist
   const outputDir = path.dirname(destPath);

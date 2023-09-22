@@ -8,7 +8,6 @@ Sitevision Resource Handler is a utility that automates the process of compiling
 - Compiles TypeScript files to JavaScript
 - Watches for changes in SASS, JavaScript, and Velocity template files
 - Uploads JavaScript, CSS, and Velocity templates to a WebDAV server
-- Supports recursive directory uploads
 
 ## Requirements
 
@@ -84,6 +83,10 @@ You also have to make sure that the user you use to connect to webdav is a local
 - `watch.js`: Watches for file changes and triggers appropriate actions like compilation and upload. Suitable for development.
 - `config.json`: Configuration file for WebDAV server details.
 - `package.json`: Project dependencies and scripts.
+
+## Velocity (VM) Files
+
+Velocity templates and their companion JavaScript files should be placed in the scripts folder. For example, if you have a Velocity template named newslist.vm, you should place it along with its companion JavaScript file newslist.js in a folder like `scripts/newslist/`.
 
 ## Dependencies
 

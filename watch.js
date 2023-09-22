@@ -1,48 +1,68 @@
 import chokidar from 'chokidar';
 import fs from 'fs';
 import path from 'path';
-import { uploadFile, compileSass, copyVelocity, init } from './common.js';
+import { uploadFile, compileSass, copySitevisionScripts, init } from './common.js';
 import chalk from 'chalk';
 
-// Initialize the WebDAV client and create the base directory if it doesn't exist
+// Initialize WebDAV client
 await init();
 
-// Function to compile and upload SASS files when they change
-const compileAndUploadSass = (filePath) => {
-  // Check if the file has a .scss extension
-  if (path.extname(filePath) !== '.scss') return;
+// Queue and flag to manage uploads
+const uploadQueue = [];
+let isUploading = false;
 
-  compileSass(filePath);
+// Process the upload queue asynchronously
+const processUploadQueue = async () => {
+  if (isUploading || uploadQueue.length === 0) return;
+  isUploading = true;
 
-  // Read the compiled CSS from the output path
-  const outputPath = path.join(process.cwd(), 'dist', 'css', 'main.css');
-  const cssBuffer = fs.readFileSync(outputPath);
+  const filePath = uploadQueue.shift();
+  const fileContent = fs.readFileSync(filePath);
+  const relativePath = path.relative('dist', filePath);
 
-  const relativePath = path.relative('dist', outputPath); // Remove 'dist' from the path
+  await uploadFile(relativePath, fileContent);
 
-  uploadFile(relativePath, cssBuffer);
+  isUploading = false;
+  processUploadQueue();
 };
 
-// Function to upload JavaScript and Velocity (.vm) files when they change
-const uploadJsAndVm = (filePath) => {
-  const jsContent = fs.readFileSync(filePath);
-  const relativePath = path.relative('dist', filePath); // Remove 'dist' from the path
-  uploadFile(relativePath, jsContent);
+// Add file to upload queue
+const uploadFileFromDist = (filePath) => {
+  uploadQueue.push(filePath);
+  processUploadQueue();
 };
 
-// Watch for changes in SASS files and compile/upload them
+const removeFileFromWebDav = (filePath) => {
+  console.log(`File deleted: ${chalk.bold(filePath)}`);
+};
+
+// Watch SASS files for changes
 const sassWatcher = chokidar.watch("./src/sass", { ignored: /^\./, persistent: true });
-sassWatcher.on('change', compileAndUploadSass);
-
-// Watch for changes in JavaScript and .vm files in the dist directory and upload them
-const jsAndVmWatcher = chokidar.watch(['dist/*/*.js', 'dist/**/*.vm'], { ignored: /^\./, persistent: true });
-jsAndVmWatcher.on('change', (filePath) => {
-  console.log(`File changed: ${chalk.bold(filePath)}`);
-  uploadJsAndVm(filePath);
+sassWatcher.on('change', (filePath) => {
+  if (path.extname(filePath) !== '.scss') return;
+  compileSass(filePath);
 });
 
-// Watch for changes in .vm files in the src/vm directory and copy them to the dist directory
-const vmWatcher = chokidar.watch('./src/vm', { ignored: /^\./, persistent: true });
-vmWatcher.on('change', copyVelocity);
+// Watch Sitevision scripts folder for changes
+const vmWatcher = chokidar.watch('./src/scripts', { ignored: /^\./, persistent: true });
+vmWatcher.on('change', copySitevisionScripts);
 
+// Watch the dist directory for file changes
+const distWatcher = chokidar.watch('dist', { ignored: /^\./, persistent: true });
+
+distWatcher
+  .on('add', (filePath) => {
+    console.log(`File added: ${chalk.bold(filePath)}`);
+    uploadFileFromDist(filePath);
+  })
+  .on('change', (filePath) => {
+    console.log(`File changed: ${chalk.bold(filePath)}`);
+    uploadFileFromDist(filePath);
+  })
+  .on('unlink', (filePath) => {
+    console.log(`File removed: ${chalk.bold(filePath)}`);
+    removeFileFromWebDav(filePath);
+  });
+
+// Notify that the watcher is active
 console.log(chalk.inverse(chalk.bold('Watching for changes...')));

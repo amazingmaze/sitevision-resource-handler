@@ -1,85 +1,75 @@
 import path from 'path';
 import fs from 'fs';
-import { uploadFile, compileSass, copyVelocity, init } from './common.js';
+import { uploadFile, compileSass, copySitevisionScripts, init } from './common.js';
 import chalk from 'chalk';
 
-// Initialize the WebDAV client and create the base directory if it doesn't exist
-await init();
+const main = async () => {
+  // Initialize the WebDAV client and create the base directory
+  await init();
 
-// Compile the SASS file and output it to the dist folder
-compileSass('/src/sass/index.scss'); // Update the path as needed
+  // Compile the SASS file to the dist folder
+  compileSass('/src/sass/index.scss');
 
-// Function to process .vm files in the src/vm directory
-const processVmFiles = () => {
-  // Define the path to the src/vm directory
-  const srcVmPath = path.join(process.cwd(), 'src', 'vm');
-  
+  // Process .vm and .js files
+  processSitevisionScripts();
+
+  // Upload each file from the dist directory
+  const distPath = path.join(process.cwd(), 'dist');
+  await readDirRecursively(distPath, uploadFromDist);
+
+  console.log(chalk.bgGreen('Build and upload completed.'));
+};
+
+// Process Sitevision scripts
+const processSitevisionScripts = (srcPath = path.join(process.cwd(), 'src', 'scripts')) => {
   try {
-    // Read all files in the src/vm directory
-    const files = fs.readdirSync(srcVmPath);
-    
-    // Iterate through each file and copy it if it has a .vm extension
-    files.forEach(file => {
-      if (file.endsWith("vm")) {
-        const filePath = path.join(srcVmPath, file);
-        copyVelocity(filePath);
+    const filesAndDirs = fs.readdirSync(srcPath);
+    filesAndDirs.forEach(item => {
+      const itemPath = path.join(srcPath, item);
+      const stats = fs.statSync(itemPath);
+
+      if (stats.isDirectory()) {
+        processSitevisionScripts(itemPath);
+      } else {
+        copySitevisionScripts(itemPath);
       }
     });
   } catch (err) {
     if (err.code === 'ENOENT') {
-      console.warn('Warning: src/vm directory not found. Not required unless you want to upload .vm');
+      console.warn('Warning: src/scripts directory not found. Not required unless you want to upload .vm/.js files.');
     } else {
-      console.error('Error reading src/vm directory:', err);
+      console.error('Error reading src/scripts directory:', err);
     }
   }
 };
 
-// Function to read a directory recursively and apply a callback function to each file
-const readDirRecursively = (dir, callback) => {
-  // Read the directory
-  fs.readdir(dir, (err, files) => {
-    if (err) {
-      console.error('Error reading directory:', err);
-      return;
-    }
-
-    // Iterate through each file or sub-directory
-    files.forEach(file => {
+// Recursively read directory and upload each file one at a time to avoid race conditions
+const readDirRecursively = async (dir, callback) => {
+  try {
+    const files = fs.readdirSync(dir);
+    for (const file of files) {
       const filePath = path.join(dir, file);
-      fs.stat(filePath, (err, stats) => {
-        if (err) {
-          console.error('Error getting file stats:', err);
-          return;
-        }
+      const stats = fs.statSync(filePath);
 
-        // If it's a directory, read it recursively
-        if (stats.isDirectory()) {
-          readDirRecursively(filePath, callback);
-        } else if (filePath.endsWith('.js') || filePath.endsWith('.css') || filePath.endsWith('.vm')) {
-          // If it's a file with one of the specified extensions, apply the callback
-          callback(filePath);
-        }
-      });
-    });
-  });
+      if (stats.isDirectory()) {
+        await readDirRecursively(filePath, callback);
+      } else {
+        await callback(filePath);
+      }
+    }
+  } catch (err) {
+    console.error('Error reading directory:', err);
+  }
 };
 
-// Function to upload a file from the dist directory to the WebDAV server
-const uploadFromDist = (filePath) => {
-  // Read the file content
+// Upload a single file from the dist directory
+const uploadFromDist = async (filePath) => {
   const content = fs.readFileSync(filePath);
-  
-  // Get the relative path of the file within the dist directory
   const relativePath = path.relative(path.join(process.cwd(), 'dist'), filePath);
-  
-  uploadFile(relativePath, content);
+  await uploadFile(relativePath, content);
 };
 
-// Process .vm files and copy them to the dist directory
-processVmFiles();
-
-// Read the dist directory recursively and upload each file
-const distPath = path.join(process.cwd(), 'dist');
-readDirRecursively(distPath, uploadFromDist);
-
-console.log(chalk.bgGreen('Build and upload completed.'));
+// Start the process
+main().catch(err => {
+  console.error('An error occurred:', err);
+});
