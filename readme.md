@@ -36,6 +36,16 @@ Create a `config.json` file in the root directory with the following structure:
 
 Replace the values with your WebDAV server details and desired base upload folder.
 
+### Multiple Environments
+
+You can have different configurations for different environments like `test` and `production`. Create additional config files named `config.test.json` and `config.production.json` for test and production environments, respectively.
+
+To run the project with a specific environment configuration, use either the watch or build command as such:
+```bash
+npm run watch:test
+``````
+Replace test with the environment name, either test or production. Running watch or build without a specified environment will just use `config.json`
+
 ## Usage
 
 ### Development

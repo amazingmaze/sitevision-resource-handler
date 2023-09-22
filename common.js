@@ -5,7 +5,9 @@ import fs from 'fs';
 import chalk from 'chalk';
 
 // Load configuration from JSON file
-const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
+const env = process.env.NODE_ENV || '';
+const configFileName = `./config${env ? `.${env}` : ''}.json`;
+const config = JSON.parse(fs.readFileSync(configFileName, 'utf8'));
 
 // Initialize WebDAV client
 const client = createClient(
