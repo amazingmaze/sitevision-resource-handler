@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import { uploadFile, compileSass, copyVelocity, init } from './common.js';
+import chalk from 'chalk';
 
 // Initialize the WebDAV client and create the base directory if it doesn't exist
 await init();
@@ -81,4 +82,4 @@ processVmFiles();
 const distPath = path.join(process.cwd(), 'dist');
 readDirRecursively(distPath, uploadFromDist);
 
-console.log('Build and upload completed.');
+console.log(chalk.bgGreen('Build and upload completed.'));

@@ -2,6 +2,7 @@ import chokidar from 'chokidar';
 import fs from 'fs';
 import path from 'path';
 import { uploadFile, compileSass, copyVelocity, init } from './common.js';
+import chalk from 'chalk';
 
 // Initialize the WebDAV client and create the base directory if it doesn't exist
 await init();
@@ -36,7 +37,7 @@ sassWatcher.on('change', compileAndUploadSass);
 // Watch for changes in JavaScript and .vm files in the dist directory and upload them
 const jsAndVmWatcher = chokidar.watch(['dist/*/*.js', 'dist/**/*.vm'], { ignored: /^\./, persistent: true });
 jsAndVmWatcher.on('change', (filePath) => {
-  console.log(`File changed: ${filePath}`);
+  console.log(`File changed: ${chalk.bold(filePath)}`);
   uploadJsAndVm(filePath);
 });
 
@@ -44,4 +45,4 @@ jsAndVmWatcher.on('change', (filePath) => {
 const vmWatcher = chokidar.watch('./src/vm', { ignored: /^\./, persistent: true });
 vmWatcher.on('change', copyVelocity);
 
-console.log('Watching for changes...');
+console.log(chalk.inverse(chalk.bold('Watching for changes...')));

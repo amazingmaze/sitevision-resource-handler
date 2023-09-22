@@ -2,6 +2,7 @@ import { createClient } from 'webdav';
 import sass from 'node-sass';
 import path from 'path';
 import fs from 'fs';
+import chalk from 'chalk';
 
 // Load configuration from JSON file
 const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
@@ -47,7 +48,7 @@ export const uploadFile = async (filePath, content) => {
 
     // Upload the file
     await client.putFileContents(fullPath, content);
-    console.log('File uploaded successfully:', fullPath);
+    console.log(chalk.green('File uploaded successfully:', chalk.bold(fullPath)));
   } catch (error) {
     console.error('Error uploading file:', error);
   }
